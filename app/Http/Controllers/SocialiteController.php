@@ -32,8 +32,10 @@ class SocialiteController extends Controller
             ]
         );
         $data = [
+            'user_info' => $user,
             'token' => $user->createToken('Sanctom+Socialite')->plainTextToken,
-            'user' => $user,
+            'token_type' => 'Bearer',
+
         ];
         return response()->json($data, 200);
     }
