@@ -23,13 +23,16 @@ class SocialiteController extends Controller
         if (!is_null($validated))
             return $validated;
         $providerUser = Socialite::driver($provider)->userFromToken($request->access_provider_token);
+        $userName = explode(' ', $providerUser->getName(), 2);
+
         $user = User::firstOrCreate(
             [
                 'email' => $providerUser->getEmail()
             ],
             [
-                'name' => $providerUser->getName(),
-            ]
+                'first_name' => $userName[0],
+                'last_name' => $userName[1],
+            ],
         );
         $data = [
             'user_info' => $user,
