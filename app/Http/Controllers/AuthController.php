@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -14,26 +15,44 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-        //TODO: confirmed password
         //TODO: handle Photo (binary file)
-        $post_data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|min:8'
-        ]);
+        try {
+            $validateUser = Validator::make($request->all(), [
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'email' => 'required|string|email|unique:users',
+                'password' => 'required|min:8|confirmed',
+                'phone' => 'required',
+                'address' => 'required'
+            ]);
 
-        $user = User::create([
-            'name' => $post_data['name'],
-            'email' => $post_data['email'],
-            'password' => Hash::make($post_data['password']),
-        ]);
-
-        $token = $user->createToken('authToken')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ]);
+            if ($validateUser->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'validation error',
+                    'errors' => $validateUser->errors()
+                ], 401);
+            }
+            $user = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'address' => $request->address
+            ]);
+            $token = $user->createToken('authToken')->plainTextToken;
+            return response()->json([
+                'user_info' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function login(Request $request)
