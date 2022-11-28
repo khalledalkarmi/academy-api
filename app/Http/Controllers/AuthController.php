@@ -41,6 +41,7 @@ class AuthController extends Controller
                 'phone' => $request->phone,
                 'address' => $request->address
             ]);
+            // TODO: edit un complete register to completed cuz register by traditional  way
             $token = $user->createToken('authToken')->plainTextToken;
             return response()->json([
                 'user_info' => $user,
