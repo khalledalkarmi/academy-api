@@ -19,12 +19,15 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/register',[AuthController::class,'register']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/logout', [AuthController::class, 'logout']);
 
 
-
 Route::post('/login/callback', [SocialiteController::class, 'handleProviderCallback']);
+
+
+Route::get('/getMas', [\App\Http\Controllers\ChatsController::class, 'fetchMessages']);
+Route::post('/sendMas', [\App\Http\Controllers\ChatsController::class, 'sendMessage']);
