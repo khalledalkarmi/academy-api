@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ChatsController extends Controller
 {
@@ -20,11 +21,12 @@ class ChatsController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $user = User::find(1);
+        $token = PersonalAccessToken::findToken($request->token);
+        $user = $token->tokenable;
+
 //        return response()->json($user);
         $message = Message::create([
-            //FixMe: get user auth id
-            'user_id' => 1,
+            'user_id' => $user->id,
             'message' => $request->message
         ]);
         broadcast(new MessageSent($user, $message))->toOthers();
